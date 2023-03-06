@@ -1,9 +1,9 @@
 pipeline {
     agent {
-      node {
-        label "built-in"
-        customWorkspace "/build/$JOB_NAME/$BUILD_ID"
-      }
+        docker {
+            image 'ghcr.io/siemens/kas/kas-isar:3.2.1'
+            args '-u 0 -e USER_ID="$(id -u)" -e GROUP_ID="$(id -g)"'
+        }
     }
     options {
         disableConcurrentBuilds()
@@ -16,18 +16,9 @@ pipeline {
         DISTRO_APT_PREMIRRORS = 'deb.debian.org ftp.de.debian.org'
     }
     stages {
-        stage('Stage') {
-            parallel {
-                stage('Cleanup') {
-                    steps {
-                        sh "/home/workspace/bin/clean_task.sh"
-                    }
-                }
-                stage('Build and run') {
-                    steps {
-                        sh "/home/workspace/bin/build_task.sh '-T ${params.TAGS}'"
-                    }
-                }
+        stage('Build and run') {
+            steps {
+                sh "./scripts/ci_build.sh -T ${params.TAGS}"
             }
         }
     }
