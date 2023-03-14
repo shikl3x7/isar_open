@@ -257,17 +257,25 @@ class CIBuilder(Test):
         self.log.debug('Waiting for SSH server ready...')
 
         rc = None
+        goodcnt = 0
         while time.time() < timeout:
             if proc.poll() is not None:
                 self.log.error('Machine is not running')
                 return rc
 
             rc = self.exec_cmd('/bin/true', cmd_prefix)
+            time_left = timeout - time.time()
+            self.log.debug('SSH ping result: %d, left: %.fs' % (rc, time_left))
             time.sleep(1)
 
             if rc == 0:
-                self.log.debug('SSH server is ready')
-                break
+                goodcnt += 1
+                # Let 3 good SSH pings to make sure SSH connection is stable
+                if goodcnt >= 3:
+                    self.log.debug('SSH server is ready')
+                    break
+            else:
+                goodcnt = 0
 
         if rc != 0:
             self.log.error('SSH server is not ready')
