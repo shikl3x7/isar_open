@@ -43,9 +43,13 @@ class CIBaseTest(CIBuilder):
             self.fail('GPG import failed')
 
         try:
-            self.bitbake(targets, **kwargs)
-
             self.delete_from_build_dir('tmp')
+            self.bitbake(targets, **kwargs)
+            # Backup base-apt
+            self.move_in_build_dir('tmp/deploy/base-apt', 'base-apt')
+            self.delete_from_build_dir('tmp')
+            os.makedirs(f"{self.build_dir}/tmp/deploy/")
+            self.move_in_build_dir('base-apt', 'tmp/deploy/base-apt')
             self.configure(gpg_pub_key=gpg_pub_key if signed else None, offline=True, sstate_dir="", **kwargs)
 
             self.bitbake(targets, **kwargs)
