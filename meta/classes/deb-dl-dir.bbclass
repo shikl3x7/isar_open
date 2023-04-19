@@ -85,6 +85,10 @@ debsrc_download() {
 }
 
 deb_dl_dir_import() {
+    if [ "${ISAR_PREFETCH_BASE_APT}" = "1" ]; then
+        return
+    fi
+
     export pc="${DEBDIR}/${2}"
     export rootfs="${1}"
     sudo mkdir -p "${rootfs}"/var/cache/apt/archives/
@@ -102,6 +106,10 @@ EOSUDO
 }
 
 deb_dl_dir_export() {
+    if [ "${ISAR_PREFETCH_BASE_APT}" = "1" ]; then
+        return
+    fi
+
     export pc="${DEBDIR}/${2}"
     export rootfs="${1}"
     export owner=$(id -u):$(id -g)
