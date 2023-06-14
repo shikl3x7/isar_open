@@ -127,6 +127,13 @@ if echo "$TAGS" | grep -Fqive "-startvm"; then
     fi
 fi
 
+if ! command -v mtda-cli > /dev/null; then
+    echo 'deb [trusted=yes] https://apt.fury.io/mtda/ /' | \
+    sudo tee /etc/apt/sources.list.d/mtda.list
+    sudo apt-get update
+    sudo apt-get install -y mtda
+fi
+
 # Provide working path
 mkdir -p .config/avocado
 cat <<EOF > .config/avocado/avocado.conf
