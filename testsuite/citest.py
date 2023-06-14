@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
 import os
+import time
+
+import mtda.client
+import mtda.constants as CONSTS
 
 from avocado import skipUnless
 from avocado.utils import path
@@ -134,7 +138,7 @@ class CrossTest(CIBaseTest):
 
     def test_cross_rpi(self):
         targets = [
-            'mc:rpi-arm-v7-bullseye:isar-image-base'
+            'mc:rpi-arm-v7-bullseye:isar-image-ci'
                   ]
 
         self.init()
@@ -476,3 +480,43 @@ class VmBootTestFull(CIBaseTest):
         self.init()
         self.vm_start('mipsel','bookworm', \
             image='isar-image-ci', script='test_example_module.sh')
+
+
+class MtdaTest(CIBaseTest):
+    """
+    Test hardware over MTDA (fast)
+
+    :avocado: tags=mtda,fast
+    """
+    def test_rpi_arm_v7_bullseye(self):
+        self.init()
+
+        # Define DUT and MTDA agent
+        dut = self.params.get('dut', default='127.0.0.1')
+        host = self.params.get('host', default='mtda')
+        port = self.params.get('port', default='22')
+
+        mtda_cli = mtda.client.Client(dut)
+
+        # Deploy image on MTDA device
+        mtda_cli.target_off()
+        mtda_cli.storage_to_host()
+        mtda_cli.storage_write_image('tmp/deploy/images/rpi-arm-v7/isar-image-ci-raspios-bullseye-rpi-arm-v7.wic')
+        mtda_cli.storage_to_target()
+
+        # Power on DUT
+        mtda_cli.target_on()
+        # Wait for booting DUT (TODO: ping over SSH until DUT gets available)
+        time.sleep(CONSTS.DEFAULTS.POWER_TIMEOUT)
+
+        try:
+            # Run tests
+            self.ssh_start(user='ci', host=host, port=port,
+                        script='test_getty_target.sh')
+            self.ssh_start(user='ci', host=host, port=port,
+                        script='test_example_module.sh')
+        finally:
+            # Power off DUT
+            mtda_cli.target_off()
+        except:
+            self.cancel('KFAIL')
