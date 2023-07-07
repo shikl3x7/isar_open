@@ -188,16 +188,16 @@ DISTRO_BOOTSTRAP_KEYRING = "${WORKDIR}/distro-keyring.gpg"
 
 do_generate_keyrings[cleandirs] = "${WORKDIR}/trusted.gpg.d"
 do_generate_keyrings[vardeps] += "DISTRO_BOOTSTRAP_KEYS THIRD_PARTY_APT_KEYS"
-do_generate_keyrings[network] = "${TASK_USE_SUDO}"
 do_generate_keyrings() {
+    rm -f "${DISTRO_BOOTSTRAP_KEYRING}"
     if [ -n "${@d.getVar("THIRD_PARTY_APT_KEYFILES") or ""}" ]; then
         for keyfile in ${@d.getVar("THIRD_PARTY_APT_KEYFILES")}; do
-           sudo apt-key --keyring "${DISTRO_BOOTSTRAP_KEYRING}" add $keyfile
+           cat $keyfile | gpg --dearmor >> ${DISTRO_BOOTSTRAP_KEYRING}
         done
     fi
     if [ -n "${@d.getVar("DISTRO_BOOTSTRAP_KEYFILES") or ""}" ]; then
         for keyfile in ${@d.getVar("DISTRO_BOOTSTRAP_KEYFILES")}; do
-           sudo apt-key --keyring "${DISTRO_BOOTSTRAP_KEYRING}" add $keyfile
+           cat $keyfile | gpg --dearmor >> ${DISTRO_BOOTSTRAP_KEYRING}
         done
     fi
 }
