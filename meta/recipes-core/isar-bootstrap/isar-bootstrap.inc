@@ -240,7 +240,6 @@ do_bootstrap[vardeps] += " \
     "
 do_bootstrap[dirs] = "${DEPLOY_DIR_BOOTSTRAP} ${BOOTSTRAP_TMPDIR} ${WORKDIR}/trusted.gpg.d ${WORKDIR}/sources.list.d"
 do_bootstrap[depends] = "base-apt:do_cache isar-apt:do_cache_config"
-do_bootstrap[network] = "${TASK_USE_NETWORK_AND_SUDO}"
 
 inherit compat
 
@@ -369,7 +368,7 @@ do_bootstrap() {
 
     if [ "${ISAR_USE_CACHED_BASE_REPO}" != "1" ]; then
         deb_dl_dir_export "${WORKDIR}/dl_dir" "${BOOTSTRAP_BASE_DISTRO}-${BASE_DISTRO_CODENAME}"
-        sudo rm -rf --one-file-system "${WORKDIR}/dl_dir"
+        rm -rf "${WORKDIR}/dl_dir/var/cache/apt/archives/*"
     fi
 }
 
