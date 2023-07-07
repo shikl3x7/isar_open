@@ -187,7 +187,6 @@ def get_distro_components_argument(d):
 DISTRO_BOOTSTRAP_KEYRING = "${WORKDIR}/distro-keyring.gpg"
 
 do_generate_keyrings[cleandirs] = "${WORKDIR}/trusted.gpg.d"
-do_generate_keyrings[dirs] = "${DEBDIR}"
 do_generate_keyrings[vardeps] += "DISTRO_BOOTSTRAP_KEYS THIRD_PARTY_APT_KEYS"
 do_generate_keyrings[network] = "${TASK_USE_SUDO}"
 do_generate_keyrings() {
@@ -294,6 +293,7 @@ do_bootstrap() {
                          umount \$1/$base_apt_tmp && rm ${WORKDIR}/mmtmpdir && \
                          umount $base_apt_tmp && rm -rf --one-file-system $base_apt_tmp"
     else
+        mkdir -p -m 777 ${DEBDIR}
         deb_dl_dir_import "${WORKDIR}/dl_dir" "${BOOTSTRAP_BASE_DISTRO}-${BASE_DISTRO_CODENAME}"
 
         bootstrap_list="${WORKDIR}/sources.list.d/bootstrap.list"
@@ -340,7 +340,7 @@ do_bootstrap() {
                                  && sudo umount $base_apt_tmp \
                                  && rm -rf --one-file-system $base_apt_tmp' EXIT
 
-    sudo TMPDIR="${BOOTSTRAP_TMPDIR}" ${DEBOOTSTRAP} $debootstrap_args \
+    TMPDIR="${BOOTSTRAP_TMPDIR}" ${DEBOOTSTRAP} $debootstrap_args \
                    $arch_param \
                    --mode=unshare \
                    --setup-hook='mkdir -p "$1/var/cache/apt/archives/"' \

@@ -70,7 +70,7 @@ debsrc_download() {
 deb_dl_dir_import() {
     export pc="${DEBDIR}/${2}"
     export rootfs="${1}"
-    sudo mkdir -p "${rootfs}"/var/cache/apt/archives/
+    sudo mkdir -p -m 777 "${rootfs}"/var/cache/apt/archives/
     [ ! -d "${pc}" ] && return 0
     flock -s "${pc}".lock sudo -Es << 'EOSUDO'
         set -e
