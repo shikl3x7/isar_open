@@ -67,7 +67,9 @@ Install the following packages:
 apt install \
   binfmt-support \
   bzip2 \
-  debootstrap \
+  mmdebstrap \
+  arch-test \
+  apt-utils \
   dpkg-dev \
   gettext-base \
   git \
@@ -127,7 +129,7 @@ apt install qemu
 
 ### Setup Sudo
 
-Isar requires `sudo` rights without password to work with `chroot` and `debootstrap`. To add them, use the following steps:
+Isar requires `sudo` rights without password to work with `chroot`. To add them, use the following steps:
 ```
  # visudo
 ```
