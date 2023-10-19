@@ -208,15 +208,13 @@ class DebRepo(object):
                 f.write("Components: main\n")
 
     def apt_config(self, init, crossbuild):
-        # Configure apt to work with empty directory
-        if not init and self.ctx.arch != self.ctx.crossarch:
-            apt_pkg.config["APT::Architectures::"] = self.ctx.crossarch
-            apt_pkg.config["APT::Architectures::"] = self.ctx.arch
-
-        if not init and self.ctx.compatarch:
-            apt_pkg.config["APT::Architectures::"] = self.ctx.compatarch
-
         apt_pkg.config.set("APT::Architecture", self.ctx.arch)
+        apt_pkg.config["APT::Architectures::"] = self.ctx.arch
+
+        if self.ctx.crossarch:
+            apt_pkg.config["APT::Architectures::"] = self.ctx.crossarch
+        if self.ctx.compatarch:
+            apt_pkg.config["APT::Architectures::"] = self.ctx.compatarch
 
         apt_pkg.config.set("Dir", self.workdir)
 
@@ -414,8 +412,9 @@ class DebRepo(object):
         progress = apt.progress.text.AcquireProgress()
 
         self.cache = apt_pkg.Cache()
-        self.cache.update(progress, sources)
-        self.cache = apt_pkg.Cache()
+        if init:
+            self.cache.update(progress, sources)
+            self.cache = apt_pkg.Cache()
 
         if self.extrarepo:
             os.remove(f"{self.workdir}/etc/apt/sources.list.d/extrarepo.list")
