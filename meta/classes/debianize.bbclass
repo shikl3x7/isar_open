@@ -78,6 +78,8 @@ Package: ${BPN}
 Architecture: ${DPKG_ARCH}
 Depends: ${DEBIAN_DEPENDS}
 Conflicts: ${DEBIAN_CONFLICTS}
+Provides: ${DEBIAN_PROVIDES}
+Replaces: ${DEBIAN_REPLACES}
 Multi-Arch: ${DEBIAN_MULTI_ARCH}
 Description: ${DESCRIPTION}
 EOF
